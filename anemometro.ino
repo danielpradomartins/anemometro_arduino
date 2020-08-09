@@ -11,8 +11,15 @@ float v3;
 float v2;
 float soma;
 
+
+unsigned int RPM = 0;
+int radius = 147;      // Raio do anemometro(mm)
+
+
+
+
 int delayTime = 50;
-unsigned long periodo = 1.0*60.0;
+unsigned long periodo = 60.0;
 unsigned long start;
 
 
@@ -41,6 +48,12 @@ void setup() {
 
 void loop() {
 // ================================================================
+         //-----------modificação--------------
+          pushButtonCounter = 0;  
+          attachInterrupt(0, addcount, RISING);
+
+         //------------------------------------
+          
           start = millis();
           while( (unsigned long)(millis()/1000.0) <= (unsigned long)(start/1000LL + periodo) ){
 
@@ -80,19 +93,22 @@ void loop() {
                     client.println("<h2>Velocidade m&eacute;dia do vento na praia do Flamengo (SSA) nas &uacute;ltimas horas</h2>");
  
 
-              client.print("Velocidade m&eacute;dia dos &uacuteltimos 2 minutos ");            
+              client.print("Velocidade m&eacute;dia dos &uacuteltimo minuto ");            
+              client.print(v[59]);
+              client.println(" n&oacutes");
+              client.print("<br/>");
+
+              client.print("Velocidade m&eacute;dia dos &uacuteltimos 5 minutos ");            
               client.print(v2);
               client.println(" n&oacutes");
               client.print("<br/>");
 
-                    
-              client.print("Velocidade m&eacute;dia dos &uacuteltimos 3 minutos ");            
+              client.print("Velocidade m&eacute;dia dos &uacuteltimos 15 minutos ");            
               client.print(v3);
               client.println(" n&oacutes");
               client.print("<br/>");
 
-
-              client.print("Velocidade m&eacute;dia dos &uacuteltimos 5 minutos ");            
+              client.print("Velocidade m&eacute;dia dos &uacuteltimos 30 minutos ");            
               client.print(v5);
               client.println(" n&oacutes");
               client.print("<br/>");
@@ -124,8 +140,8 @@ void loop() {
 
             
             
-              
-              buttonState = digitalRead(buttonPin);
+             /* 
+             buttonState = digitalRead(buttonPin);
             
             
               if(buttonState != lastButtonState){
@@ -133,62 +149,78 @@ void loop() {
                   pushButtonCounter++;
                   Serial.print("Número de pulsos");
                   Serial.println(pushButtonCounter);
-                  delay(delayTime);
+                 // delay(delayTime);
             
                 }
               }
             
               lastButtonState = buttonState;
-              
+            */  
         
-          }
+          } 
+          
           
           for(int i = 0; i < (60-1); i++){
             v[i] = v[i+1];
           }
+// --------------TESTE-------------------------
+//            RPM= ((pushButtonCounter)*60)/periodo;  // Calculate revolutions per minute (RPM)
+//            v[59] = ((4 * PI * radius * RPM)/60);
+//            v[59] = v[59]*1.94384;
+
+//---------------------------------------------
+          
 //          velocidade(pushButtonCounter, periodo); 
-            v[59] = 2*PI*pushButtonCounter*Raio/periodo;
-            v[59] = v[59]*1.94384; // Converter para nós
+            v[59] = (2*PI*pushButtonCounter*Raio)/periodo;
+            v[59] = (v[59])*1.94384; // Converter para nós
             
             Serial.print("Velocidade média do último ");
             Serial.print(60-59);
             Serial.print(" minuto: ");
             Serial.print(v[59]);
             Serial.println(" nós");
+            Serial.println(PI);
 
-          //Para 2 minutos
-          soma = 0;
-          for(int i = 60-2; i < 60; i++){
-              soma = soma + v[i];
-          }
-              v2 = soma/2;
-              Serial.print("Velocidade média dos últimos 2 minutos");            
-              Serial.print(v2);
-              Serial.println(" nós");
-
-          //Para 3 minutos
-          soma = 0;
-          for(int i = 60-3; i < 60; i++){
-              soma = soma + v[i];
-          }
-              v3 = soma/3;
-              Serial.print("Velocidade média dos últimos 3 minutos");            
-              Serial.print(v3);
-              Serial.println(" nós");
-
-           //Para 5 minutos
+          //Para 5 minutos
           soma = 0;
           for(int i = 60-5; i < 60; i++){
               soma = soma + v[i];
           }
-              v5 = soma/5;              
+              v2 = soma/5;
               Serial.print("Velocidade média dos últimos 5 minutos");            
+              Serial.print(v2);
+              Serial.println(" nós");
+
+          //Para 15 minutos
+          soma = 0;
+          for(int i = 60-15; i < 60; i++){
+              soma = soma + v[i];
+          }
+              v3 = soma/15;
+              Serial.print("Velocidade média dos últimos 15 minutos");            
+              Serial.print(v3);
+              Serial.println(" nós");
+
+           //Para 30 minutos
+          soma = 0;
+          for(int i = 60-30; i < 60; i++){
+              soma = soma + v[i];
+          }
+              v5 = soma/30;              
+              Serial.print("Velocidade média dos últimos 30 minutos");            
               Serial.print(v5);
               Serial.println(" nós");
 
-          pushButtonCounter = 0;
+          
 
   // ==================================================== 
 
 //======================================
+
+
+
 } // fim do loop
+
+void addcount(){
+  pushButtonCounter++;
+}
